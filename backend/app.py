@@ -1,14 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_pymongo import PyMongo
-from config import Config
+from config import Config, uri, client
 from bson.json_util import dumps
 from pymongo.mongo_client import MongoClient
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 # Initialize MongoDB
 mongo = PyMongo(app)
+mongo_uri = uri
 
 if mongo.cx:
     print("MongoDB connected successfully")
@@ -19,13 +21,6 @@ else:
 @app.route('/api/test', methods=['GET'])
 def test_endpoint():
     return jsonify({"message": "API is working!"}), 200
-# @app.route('/api/test', methods=['GET'])
-# def test_connection():
-#     try:
-#         mongo.db.test_collection.insert_one({'test': 'data'})
-#         return {"status": "Connected and working!"}, 200
-#     except Exception as e:
-#         return {"error": str(e)}, 500
 
 # Endpoint to create a transaction
 @app.route('/api/transactions', methods=['POST'])
@@ -33,14 +28,14 @@ def create_transaction():
     data = request.get_json()
     print("Received data:", data)
 
-    uri = "mongodb+srv://mohit2002:VZnPlg08gCI5krUB@mohitcluster.19qni.mongodb.net/?retryWrites=true&w=majority&appName=MohitCluster"
-    client = MongoClient(uri)
+    client = MongoClient(mongo_uri)
     
-
     if data:
         try:
-            db = client['demo'] 
-            collection = db['data'] 
+            # Create database named Transactions if they don't exist already
+            db = client['Transactions'] 
+            # Create collection named Records if it doesn't exist already 
+            collection = db['Records'] 
             # Attempt to insert data into the 'transactions' collection
             collection.insert_one(data)
             return {"message": "Transaction created successfully"}, 201
@@ -49,60 +44,89 @@ def create_transaction():
             return {"error": str(e)}, 500
     else:
         return {"error": "No data provided"}, 400
-    
 
 
-# def create_transaction():
-#     data = request.get_json()
-#     transaction_id = data.get('transaction_id')
-#     amount = data.get('amount')
-#     timestamp = data.get('timestamp')
-#     user_id = data.get('user_id')
-#     transaction_type = data.get('transaction_type')
-#     description = data.get('description')
-#     status = data.get('status')
-    
-#     # Insert the transaction into the MongoDB collection
-#     mongo.db.transactions.insert_one({
-#         "transaction_id": transaction_id,
-#         "amount": amount,
-#         "timestamp": timestamp,
-#         "user_id": user_id,
-#         "transaction_type": transaction_type,
-#         "description": description,
-#         "status": status
-#     })
-    
-    # return jsonify({"message": "Transaction created successfully!"}), 201
-
-# Endpoint to get all transactions
+# Get All Transactions
 @app.route('/api/transactions', methods=['GET'])
 def get_transactions():
-    transactions = mongo.db.transactions.find()
-    return dumps(transactions)
+    client = MongoClient(mongo_uri)
+    db = client['Transactions']
+    collection = db['Records']
 
-# Endpoint to get a specific transaction by ID
+    try:
+        # Fetch all transactions
+        transactions = list(collection.find())
+        transactions_json = dumps(transactions)  # Convert to JSON string
+        return transactions_json, 200
+    except Exception as e:
+        print("Error fetching transactions:", str(e))
+        return {"error": str(e)}, 500
+
+
+# Get a Single Transaction by ID
 @app.route('/api/transactions/<transaction_id>', methods=['GET'])
 def get_transaction(transaction_id):
-    transaction = mongo.db.transactions.find_one({"transaction_id": transaction_id})
-    if transaction:
-        return dumps(transaction)
-    return jsonify({"error": "Transaction not found!"}), 404
+    client = MongoClient(mongo_uri)
+    db = client['Transactions']
+    collection = db['Records']
 
-# Endpoint to update a transaction by ID
+    try:
+        # Fetch transaction by 'transaction_id' (not _id)
+        transaction = collection.find_one({"transaction_id": transaction_id})
+        if transaction:
+            transaction_json = dumps(transaction)
+            return transaction_json, 200
+        else:
+            return {"error": "Transaction not found"}, 404
+    except Exception as e:
+        print("Error fetching transaction:", str(e))
+        return {"error": str(e)}, 500
+
+# Update a Transaction
 @app.route('/api/transactions/<transaction_id>', methods=['PUT'])
 def update_transaction(transaction_id):
     data = request.get_json()
-    mongo.db.transactions.update_one({"transaction_id": transaction_id}, {"$set": data})
-    return jsonify({"message": "Transaction updated successfully!"})
+    client = MongoClient(mongo_uri)
+    db = client['Transactions']
+    collection = db['Records']
 
-# Endpoint to delete a transaction by ID
+    if data:
+        try:
+            # Update transaction by 'transaction_id'
+            updated_transaction = collection.update_one(
+                {"transaction_id": transaction_id},  # Match by transaction_id
+                {"$set": data}  # Update fields with the data provided
+            )
+            
+            if updated_transaction.matched_count > 0:
+                return {"message": "Transaction updated successfully"}, 200
+            else:
+                return {"error": "Transaction not found"}, 404
+        except Exception as e:
+            print("Error updating transaction:", str(e))
+            return {"error": str(e)}, 500
+    else:
+        return {"error": "No data provided"}, 400
+
+# Delete a Transaction
 @app.route('/api/transactions/<transaction_id>', methods=['DELETE'])
 def delete_transaction(transaction_id):
-    result = mongo.db.transactions.delete_one({"transaction_id": transaction_id})
-    if result.deleted_count > 0:
-        return jsonify({"message": "Transaction deleted successfully!"})
-    return jsonify({"error": "Transaction not found!"}), 404
+    client = MongoClient(mongo_uri)
+    db = client['Transactions']
+    collection = db['Records']
+
+    try:
+        # Delete transaction by 'transaction_id'
+        result = collection.delete_one({"transaction_id": transaction_id})
+        
+        if result.deleted_count > 0:
+            return {"message": "Transaction deleted successfully"}, 200
+        else:
+            return {"error": "Transaction not found"}, 404
+    except Exception as e:
+        print("Error deleting transaction:", str(e))
+        return {"error": str(e)}, 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
