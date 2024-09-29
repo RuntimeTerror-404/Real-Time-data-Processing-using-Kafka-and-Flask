@@ -1,8 +1,18 @@
 import os
+from urllib.parse import quote_plus
+from pymongo.mongo_client import MongoClient
 
 class Config:
-    MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
-    MYSQL_USER = os.getenv('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'your-password')
-    MYSQL_DB = os.getenv('MYSQL_DB', 'real_time_data')
-    KAFKA_BROKER_URL = os.getenv('KAFKA_BROKER_URL', 'localhost:9092')
+    SECRET_KEY = os.environ.get('SECRET_KEY') or '8077119512'
+    MONGO_URI = os.environ.get('MONGO_URI') or 'mongodb+srv://mohit2002:VZnPlg08gCI5krUB@mohitcluster.19qni.mongodb.net/?retryWrites=true&w=majority&appName=MohitCluster'
+
+uri = "mongodb+srv://mohit2002:VZnPlg08gCI5krUB@mohitcluster.19qni.mongodb.net/?retryWrites=true&w=majority&appName=MohitCluster"
+# Create a new client and connect to the server
+client = MongoClient(uri)
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
