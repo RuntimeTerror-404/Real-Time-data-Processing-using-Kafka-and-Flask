@@ -23,5 +23,5 @@ def send_financial_transaction(transaction_id, amount, timestamp, user_id, trans
 
 # Example of sending a transaction
 while True:
-    send_financial_transaction("12345", 250.75, "2024-09-28T12:00:00Z", "user_001", "credit", "Payment for invoice #5678", "completed")
+    send_financial_transaction("898989", 508000.90, "2024-07-18T12:00:00Z", "kafka_test_user", "credit", "Local Payment for KAFKA TEST USER", "completed")
     time.sleep(5)  # Send a message every 5 seconds

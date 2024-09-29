@@ -4,6 +4,8 @@ from config import Config, uri, client
 from bson.json_util import dumps
 from pymongo.mongo_client import MongoClient
 from bson.objectid import ObjectId
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 app.config.from_object(Config)
