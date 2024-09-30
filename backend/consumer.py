@@ -17,7 +17,7 @@ MAX_RETRIES = 5  # Number of retries for MongoDB insertion failures
 RETRY_INTERVAL = 2  # Time to wait between retries (in seconds)
 
 def consume_messages(topic):
-    """Consume messages from the Kafka topic and insert into MongoDB with error handling."""
+    """Consume messages from the Kafka topic."""
     consumer = KafkaConsumer(
         topic,
         bootstrap_servers=["localhost:9092"],
@@ -25,33 +25,21 @@ def consume_messages(topic):
         group_id="consumer-group-1",
         value_deserializer=lambda x: json.loads(x.decode("utf-8"))
     )
-    
+
     try:
         print(f"Listening to topic {topic}...")
         for message in consumer:
-            transaction_data = message.value
-            print(f"Received message: {transaction_data}")
-
-            # Check for existing transaction_id in MongoDB (deduplication)
-            if collection.find_one({"transaction_id": transaction_data["transaction_id"]}):
-                print(f"Transaction {transaction_data['transaction_id']} already exists in MongoDB. Skipping insertion.")
-                continue
-
-            # Attempt to insert the transaction data into MongoDB
-            retry_count = 0
-            while retry_count < MAX_RETRIES:
-                try:
-                    collection.insert_one(transaction_data)
-                    print(f"Transaction {transaction_data['transaction_id']} inserted into MongoDB.")
-                    break  # Break out of retry loop if successful
-                except Exception as e:
-                    print(f"Error inserting into MongoDB: {e}")
-                    retry_count += 1
-                    if retry_count < MAX_RETRIES:
-                        print(f"Retrying ({retry_count}/{MAX_RETRIES}) in {RETRY_INTERVAL} seconds...")
-                        time.sleep(RETRY_INTERVAL)
-                    else:
-                        print(f"Failed to insert transaction {transaction_data['transaction_id']} after {MAX_RETRIES} retries.")
+            message_value = message.value
+            print(f"Received message: {message_value}")
+            
+            # Check if the message is a deletion notification
+            if "message" in message_value and message_value["message"] == "Transaction deleted":
+                print(f"Transaction {message_value['transaction_id']} deleted. No insertion needed.")
+            else:
+                # Insert the transaction into MongoDB if it's not a deletion notice
+                collection.insert_one(message_value)
+                print(f"Transaction {message_value['transaction_id']} inserted into MongoDB.")
+                
     except Exception as e:
         print(f"Failed to consume message: {e}")
     finally:

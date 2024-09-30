@@ -50,28 +50,6 @@ def create_transaction():
     else:
         return {"error": "No data provided"}, 400
 
-# @app.route('/api/transactions', methods=['POST'])
-# def create_transaction():
-#     data = request.get_json()
-#     print("Received data:", data)
-
-#     client = MongoClient(mongo_uri)
-    
-#     if data:
-#         try:
-#             # Create database named Transactions if they don't exist already
-#             db = client['Transactions'] 
-#             # Create collection named Records if it doesn't exist already 
-#             collection = db['Records'] 
-#             # Attempt to insert data into the 'transactions' collection
-#             collection.insert_one(data)
-#             return {"message": "Transaction created successfully"}, 201
-#         except Exception as e:
-#             print("Error inserting data:", str(e))
-#             return {"error": str(e)}, 500
-#     else:
-#         return {"error": "No data provided"}, 400
-
 
 # Get All Transactions
 @app.route('/api/transactions', methods=['GET'])
@@ -119,18 +97,21 @@ def update_transaction(transaction_id):
 
     if data:
         try:
-            # Update transaction by 'transaction_id'
+            # Update transaction in MongoDB
             updated_transaction = collection.update_one(
-                {"transaction_id": transaction_id},  # Match by transaction_id
-                {"$set": data}  # Update fields with the data provided
+                {"transaction_id": transaction_id},
+                {"$set": data}
             )
-            
             if updated_transaction.matched_count > 0:
-                return {"message": "Transaction updated successfully"}, 200
+                # Send the updated transaction data to Kafka
+                producer.send('real_time_data', data)
+                producer.flush()
+                print(f'Sent updated transaction to Kafka: {data}')
+                return {"message": "Transaction updated successfully and sent to Kafka"}, 200
             else:
                 return {"error": "Transaction not found"}, 404
         except Exception as e:
-            print("Error updating transaction:", str(e))
+            print(f"Error updating transaction: {e}")
             return {"error": str(e)}, 500
     else:
         return {"error": "No data provided"}, 400
@@ -138,20 +119,28 @@ def update_transaction(transaction_id):
 # Delete a Transaction
 @app.route('/api/transactions/<transaction_id>', methods=['DELETE'])
 def delete_transaction(transaction_id):
+    data = request.get_json()
     client = MongoClient(mongo_uri)
     db = client['Transactions']
     collection = db['Records']
-
+    
     try:
-        # Delete transaction by 'transaction_id'
+        # Delete transaction from MongoDB
         result = collection.delete_one({"transaction_id": transaction_id})
-        
         if result.deleted_count > 0:
-            return {"message": "Transaction deleted successfully"}, 200
+            # Send a delete message to Kafka
+            delete_message = {
+                "transaction_id": transaction_id,
+                "message": "Transaction deleted"
+            }
+            producer.send('real_time_data', delete_message)
+            producer.flush()
+            print(f'Sent delete message to Kafka: {delete_message}')
+            return {"message": "Transaction deleted and message sent to Kafka"}, 200
         else:
             return {"error": "Transaction not found"}, 404
     except Exception as e:
-        print("Error deleting transaction:", str(e))
+        print(f"Error deleting transaction: {e}")
         return {"error": str(e)}, 500
 
 
