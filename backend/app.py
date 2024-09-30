@@ -6,6 +6,8 @@ from pymongo.mongo_client import MongoClient
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 import os
+from kafka import KafkaProducer
+import json
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -13,6 +15,12 @@ app.config.from_object(Config)
 # Initialize MongoDB
 mongo = PyMongo(app)
 mongo_uri = uri
+
+# Kafka producer setup
+producer = KafkaProducer(
+    bootstrap_servers='localhost:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
 
 if mongo.cx:
     print("MongoDB connected successfully")
@@ -30,22 +38,39 @@ def create_transaction():
     data = request.get_json()
     print("Received data:", data)
 
-    client = MongoClient(mongo_uri)
-    
     if data:
         try:
-            # Create database named Transactions if they don't exist already
-            db = client['Transactions'] 
-            # Create collection named Records if it doesn't exist already 
-            collection = db['Records'] 
-            # Attempt to insert data into the 'transactions' collection
-            collection.insert_one(data)
-            return {"message": "Transaction created successfully"}, 201
+            # Send the transaction data to Kafka
+            producer.send('real_time_data', data)
+            print(f'Sent message to Kafka: {data}')
+            return {"message": "Transaction sent to Kafka successfully"}, 201
         except Exception as e:
-            print("Error inserting data:", str(e))
+            print(f"Error sending data to Kafka: {e}")
             return {"error": str(e)}, 500
     else:
         return {"error": "No data provided"}, 400
+
+# @app.route('/api/transactions', methods=['POST'])
+# def create_transaction():
+#     data = request.get_json()
+#     print("Received data:", data)
+
+#     client = MongoClient(mongo_uri)
+    
+#     if data:
+#         try:
+#             # Create database named Transactions if they don't exist already
+#             db = client['Transactions'] 
+#             # Create collection named Records if it doesn't exist already 
+#             collection = db['Records'] 
+#             # Attempt to insert data into the 'transactions' collection
+#             collection.insert_one(data)
+#             return {"message": "Transaction created successfully"}, 201
+#         except Exception as e:
+#             print("Error inserting data:", str(e))
+#             return {"error": str(e)}, 500
+#     else:
+#         return {"error": "No data provided"}, 400
 
 
 # Get All Transactions
