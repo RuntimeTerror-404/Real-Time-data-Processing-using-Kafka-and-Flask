@@ -5,4 +5,9 @@ mysql-connector-python==8.0.30
 flask-pymongo
 python-dotenv
 flask-cors
+flask-socketio
+kafka-python 
+kafka-streams
+faust
+
 
