@@ -1,0 +1,23 @@
+.sidebar {
+    width: 200px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;                /* Use flexbox */
+    flex-direction: column;       /* Arrange items in a column */
+    justify-content: center;      /* Center items vertically */
+    height: 100vh;               /* Make sidebar full height of the viewport */
+  }
+  
+  .sidebar h2 {
+    margin-bottom: 20px;         /* Add some spacing below the header */
+  }
+  
+  .sidebar ul {
+    list-style-type: none;       /* Remove bullet points */
+    padding: 0;                  /* Remove default padding */
+  }
+  
+  .sidebar ul li {
+    margin: 10px 0;              /* Add some space between list items */
+  }
+  

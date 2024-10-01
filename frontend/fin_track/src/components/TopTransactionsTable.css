@@ -1,0 +1,101 @@
+/* src/components/TopTransactionsTable.css */
+
+.top-transactions-table {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.top-transactions-table h2 {
+    color: #e1167f;
+    margin-bottom: 15px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Set the height of the table container and make it scrollable */
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-top: 10px;
+}
+
+.top-transactions-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Space between rows */
+}
+
+/* Remove all default table borders */
+.top-transactions-table th,
+.top-transactions-table td {
+    border: none;
+    padding: 15px 20px;
+    text-align: left;
+}
+
+/* Style for table header */
+.top-transactions-table th {
+    font-size: 18px;
+    background-color: #8f1aba;
+    color: #fff;
+    border-radius: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Style each row as a card */
+.top-transactions-table tbody tr {
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for each row */
+.top-transactions-table tbody tr:hover {
+    background-color: #e78d58; /* Red background on hover */
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* Styling for cells inside each row */
+.top-transactions-table tbody td {
+    font-size: 16px;
+    color: #333;
+}
+
+.top-transactions-table tbody td:nth-child(4) {
+    font-weight: bold; /* Emphasizing the Amount column */
+    color: #007bff;
+}
+
+.top-transactions-table tbody td:nth-child(5) {
+    text-transform: capitalize; /* Capitalize the Status text */
+}
+
+/* Scrollbar styling */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 10px;
+}

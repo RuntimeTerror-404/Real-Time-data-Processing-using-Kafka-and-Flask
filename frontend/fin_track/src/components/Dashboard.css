@@ -1,0 +1,53 @@
+/* src/components/Dashboard.css */
+
+.dashboard-container {
+    max-width: 1200px; /* Maximum width to prevent spreading on large screens */
+    margin: 0 auto; /* Center the dashboard horizontally */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 30px;
+  }
+  
+  /* Top section: align first two components side by side */
+  .top-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Space between the graph and the card */
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Allow components to stack on smaller screens */
+  }
+  
+  /* Set widths for the first two sub-components */
+  .graph-section, .companies-card-section {
+    flex: 1;
+    min-width: 280px; /* Ensure components don't become too small on smaller screens */
+    max-width: 60%; /* Prevent too much spreading on larger screens */
+  }
+  
+  .companies-card-section {
+    max-width: 40%;
+  }
+  
+  /* Full-width section for the transactions table */
+  .transactions-table-section {
+    width: 100%;
+    margin-top: 30px;
+  }
+  
+  @media (max-width: 1024px) {
+    /* On smaller screens, stack the components vertically */
+    .top-section {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .graph-section, .companies-card-section {
+      max-width: 100%; /* Full width for smaller screens */
+    }
+  }
+  

@@ -8,9 +8,12 @@ from dotenv import load_dotenv
 import os
 from kafka import KafkaProducer
 import json
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+CORS(app)
 
 # Initialize MongoDB
 mongo = PyMongo(app)

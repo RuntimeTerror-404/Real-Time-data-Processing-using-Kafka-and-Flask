@@ -11,6 +11,7 @@ class Transaction(db.Model):
     transaction_type = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=True)
     status = db.Column(db.String, nullable=False)
+    organization = db.Column(db.String, nullable=False)
 
     def to_dict(self):
         return {
@@ -20,5 +21,6 @@ class Transaction(db.Model):
             'user_id': self.user_id,
             'transaction_type': self.transaction_type,
             'description': self.description,
-            'status': self.status
+            'status': self.status,
+            'organization': self.organization
         }

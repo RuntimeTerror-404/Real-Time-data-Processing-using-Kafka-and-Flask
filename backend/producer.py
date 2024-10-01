@@ -8,7 +8,7 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-def send_financial_transaction(transaction_id, amount, timestamp, user_id, transaction_type, description, status):
+def send_financial_transaction(transaction_id, amount, timestamp, user_id, transaction_type, description, status, organization):
     message = {
         "transaction_id": transaction_id,
         "amount": amount,
@@ -16,12 +16,13 @@ def send_financial_transaction(transaction_id, amount, timestamp, user_id, trans
         "user_id": user_id,
         "transaction_type": transaction_type,
         "description": description,
-        "status": status
+        "status": status,
+        'organization': organization
     }
     producer.send('real_time_data', message)
     print(f'Sent message: {message}')
 
 # Example of sending a transaction
 while True:
-    send_financial_transaction("807711", 15500.50, "2024-09-18T12:00:00Z", "Dawid Warner", "Personal", "Personal Payment for Warner", "Success")
+    send_financial_transaction("000777", 44000.50, "2021-12-27T12:00:00Z", "Mohit P", "Personal", "Personal Payment for Warner", "Success", "American Express")
     time.sleep(5)  # Send a message every 5 seconds

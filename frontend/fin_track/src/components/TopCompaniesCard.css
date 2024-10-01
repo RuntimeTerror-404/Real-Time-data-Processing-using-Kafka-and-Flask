@@ -1,0 +1,61 @@
+/* src/components/TopCompaniesCard.css */
+
+.top-companies-card {
+    padding: 20px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animation on hover */
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+/* On hover, the card will move slightly upward and shadow will increase */
+.top-companies-card:hover {
+    transform: translateY(-10px); /* Move the card slightly up */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Enhance the shadow */
+}
+
+.top-companies-card h2 {
+    color: #1e90ff;
+    margin-bottom: 15px;
+}
+
+.top-companies-card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.top-companies-card th, 
+.top-companies-card td {
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+}
+
+.top-companies-card th {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.top-companies-card td {
+    background-color: #ffffff;
+    color: #555;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+table tr:hover {
+    background-color: #f2f2f2; /* Slight row highlight on hover */
+}
+
+table td:first-child {
+    display: flex;
+    align-items: center;
+}
